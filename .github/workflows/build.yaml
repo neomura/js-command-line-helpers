@@ -32,6 +32,7 @@ jobs:
         registry-url: 'https://registry.npmjs.org'
     - run: npm ci
     - run: npm run-script build
+    - run: "sed -i \"s/\\\"version\\\": \\\"0.0.0\\\",/\\\"version\\\": \\\"${GITHUB_REF/refs\\/tags\\/v/}\\\",/g\" package.json"
     - run: npm publish
       env:
         NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
