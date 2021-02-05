@@ -1,14 +1,14 @@
-# neomura > js command line helpers
+# neomura/js-command-line-helpers
 
-helpers for writing command line tools using nodejs.
+Helpers for writing command line tools using NodeJS.
 
-[mit licensed](./license.md).
+[MIT licensed](./license.md).
 
-## usage
+## Usage
 
-### parsing command line arguments
+### Parsing command line arguments
 
-given the following javascript file:
+Given the following javascript file:
 
 ```ts
 import { parseCommandLineArguments } from "@neomura/js-command-line-helpers";
@@ -49,13 +49,11 @@ const parsed = parseCommandLineArguments(
 console.log(JSON.stringify(parsed, null, 2));
 ```
 
-the following may occur:
+The following may occur:
 
-#### help
+#### Help
 
-if the command line arguments include the text "-h", "--help" or "/?", the
-process will exit with code 0 and help similar to the following will be written
-to stdout:
+If the command line arguments include the text "-h", "--help" or "/?", the process will exit with code 0 and help similar to the following will be written to stdout:
 
 ```
 example name - example help text
@@ -66,19 +64,17 @@ example name - example help text
     -esn, --example-string-name [example string name's example argument help text]: example string name's example help text
 ```
 
-#### invalid
+#### Invalid
 
-if the command line arguments fail to validate, the process will exit with code
-1 and a message similar to the following will be written to stderr:
+If the command line arguments fail to validate, the process will exit with code 1 and a message similar to the following will be written to stderr:
 
 ```
 command-line argument -ein/--example-integer-name given multiple times.
 ```
 
-#### valid
+#### Valid
 
-if the command line arguments are valid, the arguments will be returned in an
-object:
+If the command line arguments are valid, the arguments will be returned in an object:
 
 ```json
 {
@@ -91,9 +87,9 @@ object:
 }
 ```
 
-### running asynchronous code
+### Running asynchronous code
 
-given the following javascript file:
+Given the following javascript file:
 
 ```ts
 import { runMain } from "@neomura/js-command-line-helpers";
@@ -103,8 +99,8 @@ runMain(async () => {
 });
 ```
 
-the async callback will be executed.
+The async callback will be executed.
 
-on resolution, the process will exit with code 0.
+On resolution, the process will exit with code 0.
 
-on rejection, the process will exit with code 1 and write the reason to stderr.
+On rejection, the process will exit with code 1 and write the reason to stderr.

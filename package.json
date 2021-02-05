@@ -1,6 +1,6 @@
 {
   "name": "@neomura/js-command-line-helpers",
-  "description": "helpers for writing command line tools using nodejs.",
+  "description": "Helpers for writing command line tools using NodeJS.",
   "version": "0.0.0",
   "engines": {
     "node": ">=14.15.3"
