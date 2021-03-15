@@ -1,6 +1,7 @@
 export type CommandLineParameterSet<
   TStringKey extends string,
-  TIntegerKey extends string
+  TIntegerKey extends string,
+  TEnums extends { readonly [key: string]: string }
 > = {
   readonly strings: {
     readonly [TKey in TStringKey]: {
@@ -26,6 +27,24 @@ export type CommandLineParameterSet<
       readonly argumentHelpText: string;
       readonly minimum: number;
       readonly maximum: number;
+    };
+  };
+  readonly enums: {
+    readonly [TKey in keyof TEnums]: {
+      readonly name: {
+        readonly short: string;
+        readonly long: string;
+      };
+      readonly helpText: string;
+      readonly options: {
+        readonly [TOption in TEnums[TKey]]: {
+          readonly name: {
+            readonly short: string;
+            readonly long: string;
+          };
+          readonly helpText: string;
+        };
+      };
     };
   };
 };

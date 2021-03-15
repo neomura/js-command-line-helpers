@@ -55,12 +55,17 @@ describe(`parseCommandLineArguments`, () => {
 
   type StringKey = "testStringA" | "testStringB";
   type IntegerKey = "testIntegerA" | "testIntegerB";
+  type Enum = {
+    testEnumA: "testOptionAA" | "testOptionAB" | "testOptionAC";
+    testEnumB: "testOptionBA" | "testOptionBB" | "testOptionBC";
+  };
 
   const name = `test name`;
   const helpText = `test help text`;
   const commandLineParameterSet: CommandLineParameterSet<
     StringKey,
-    IntegerKey
+    IntegerKey,
+    Enum
   > = {
     strings: {
       testStringA: {
@@ -110,6 +115,68 @@ describe(`parseCommandLineArguments`, () => {
         maximum: 24,
       },
     },
+    enums: {
+      testEnumA: {
+        name: {
+          short: `test-enum-a-short-name`,
+          long: `test-enum-a-long-name`,
+        },
+        helpText: `test enum a help text`,
+        options: {
+          testOptionAA: {
+            name: {
+              short: `test-option-a-a-short-name`,
+              long: `test-option-a-a-long-name`,
+            },
+            helpText: `test option a a help text`,
+          },
+          testOptionAB: {
+            name: {
+              short: `test-option-a-b-short-name`,
+              long: `test-option-a-b-long-name`,
+            },
+            helpText: `test option a b help text`,
+          },
+          testOptionAC: {
+            name: {
+              short: `test-option-a-c-short-name`,
+              long: `test-option-a-c-long-name`,
+            },
+            helpText: `test option a c help text`,
+          },
+        },
+      },
+      testEnumB: {
+        name: {
+          short: `test-enum-b-short-name`,
+          long: `test-enum-b-long-name`,
+        },
+        helpText: `test enum b help text`,
+        options: {
+          testOptionBA: {
+            name: {
+              short: `test-option-b-a-short-name`,
+              long: `test-option-b-a-long-name`,
+            },
+            helpText: `test option b a help text`,
+          },
+          testOptionBB: {
+            name: {
+              short: `test-option-b-b-short-name`,
+              long: `test-option-b-b-long-name`,
+            },
+            helpText: `test option b b help text`,
+          },
+          testOptionBC: {
+            name: {
+              short: `test-option-b-c-short-name`,
+              long: `test-option-b-c-long-name`,
+            },
+            helpText: `test option b c help text`,
+          },
+        },
+      },
+    },
   };
 
   function showsHelp(description: string, argv: ReadonlyArray<string>): void {
@@ -137,6 +204,14 @@ describe(`parseCommandLineArguments`, () => {
   usage: test name [options]
   options:
     -h, --help, /?: display this message
+    -test-enum-a-short-name, --test-enum-a-long-name [test-option-a-a-short-name|test-option-a-a-long-name|test-option-a-b-short-name|test-option-a-b-long-name|test-option-a-c-short-name|test-option-a-c-long-name]: test enum a help text
+      test-option-a-a-short-name, test-option-a-a-long-name: test option a a help text
+      test-option-a-b-short-name, test-option-a-b-long-name: test option a b help text
+      test-option-a-c-short-name, test-option-a-c-long-name: test option a c help text
+    -test-enum-b-short-name, --test-enum-b-long-name [test-option-b-a-short-name|test-option-b-a-long-name|test-option-b-b-short-name|test-option-b-b-long-name|test-option-b-c-short-name|test-option-b-c-long-name]: test enum b help text
+      test-option-b-a-short-name, test-option-b-a-long-name: test option b a help text
+      test-option-b-b-short-name, test-option-b-b-long-name: test option b b help text
+      test-option-b-c-short-name, test-option-b-c-long-name: test option b c help text
     -test-integer-a-short-name, --test-integer-a-long-name [test integer a argument help text]: test integer a help text
     -test-integer-b-short-name, --test-integer-b-long-name [test integer b argument help text]: test integer b help text
     -test-string-a-short-name, --test-string-a-long-name [test string a argument help text]: test string a help text
@@ -169,9 +244,9 @@ describe(`parseCommandLineArguments`, () => {
   function accepts(
     description: string,
     argv: ReadonlyArray<string>,
-    expectedArguments: CommandLineArgumentSet<StringKey, IntegerKey>
+    expectedArguments: CommandLineArgumentSet<StringKey, IntegerKey, Enum>
   ): void {
-    let actualArguments: CommandLineArgumentSet<StringKey, IntegerKey>;
+    let actualArguments: CommandLineArgumentSet<StringKey, IntegerKey, Enum>;
 
     withFakedGlobals(
       description,
@@ -318,6 +393,10 @@ describe(`parseCommandLineArguments`, () => {
       `-1`,
       `--test-integer-b-long-name`,
       `18`,
+      `-test-enum-a-short-name`,
+      `test-option-a-a-long-name`,
+      `--test-enum-b-long-name`,
+      `test-option-b-c-short-name`,
     ],
     {
       strings: {
@@ -327,6 +406,10 @@ describe(`parseCommandLineArguments`, () => {
       integers: {
         testIntegerA: -1,
         testIntegerB: 18,
+      },
+      enums: {
+        testEnumA: `testOptionAA`,
+        testEnumB: `testOptionBC`,
       },
     }
   );
@@ -345,6 +428,10 @@ describe(`parseCommandLineArguments`, () => {
       `-1`,
       `--test-integer-b-long-name`,
       `18`,
+      `-test-enum-a-short-name`,
+      `test-option-a-a-long-name`,
+      `--test-enum-b-long-name`,
+      `test-option-b-c-short-name`,
     ],
     `unexpected command-line argument "test unexpected argument".`
   );
@@ -363,6 +450,10 @@ describe(`parseCommandLineArguments`, () => {
       `-1`,
       `--test-integer-b-long-name`,
       `18`,
+      `-test-enum-a-short-name`,
+      `test-option-a-a-long-name`,
+      `--test-enum-b-long-name`,
+      `test-option-b-c-short-name`,
     ],
     `unexpected command-line argument "-test-unexpected-short-name".`
   );
@@ -381,6 +472,10 @@ describe(`parseCommandLineArguments`, () => {
       `-1`,
       `--test-integer-b-long-name`,
       `18`,
+      `-test-enum-a-short-name`,
+      `test-option-a-a-long-name`,
+      `--test-enum-b-long-name`,
+      `test-option-b-c-short-name`,
     ],
     `unexpected command-line argument "--test-unexpected-long-name".`
   );
@@ -398,6 +493,10 @@ describe(`parseCommandLineArguments`, () => {
       `-1`,
       `--test-integer-b-long-name`,
       `18`,
+      `-test-enum-a-short-name`,
+      `test-option-a-a-long-name`,
+      `--test-enum-b-long-name`,
+      `test-option-b-c-short-name`,
     ],
     `command-line argument "-test-integer-a-short-name"/"--test-integer-a-long-name" not given.`
   );
@@ -415,6 +514,10 @@ describe(`parseCommandLineArguments`, () => {
       `-1`,
       `-test-integer-b-long-name`,
       `18`,
+      `-test-enum-a-short-name`,
+      `test-option-a-a-long-name`,
+      `--test-enum-b-long-name`,
+      `test-option-b-c-short-name`,
     ],
     `command-line argument "-test-integer-b-short-name"/"--test-integer-b-long-name" not given.`
   );
@@ -430,6 +533,10 @@ describe(`parseCommandLineArguments`, () => {
       `tba`,
       `--test-integer-b-long-name`,
       `18`,
+      `-test-enum-a-short-name`,
+      `test-option-a-a-long-name`,
+      `--test-enum-b-long-name`,
+      `test-option-b-c-short-name`,
     ],
     `command-line argument "-test-integer-a-short-name"/"--test-integer-a-long-name" not given.`
   );
@@ -447,6 +554,10 @@ describe(`parseCommandLineArguments`, () => {
       `-4`,
       `--test-integer-b-long-name`,
       `18`,
+      `-test-enum-a-short-name`,
+      `test-option-a-a-long-name`,
+      `--test-enum-b-long-name`,
+      `test-option-b-c-short-name`,
     ],
     {
       strings: {
@@ -456,6 +567,10 @@ describe(`parseCommandLineArguments`, () => {
       integers: {
         testIntegerA: -4,
         testIntegerB: 18,
+      },
+      enums: {
+        testEnumA: `testOptionAA`,
+        testEnumB: `testOptionBC`,
       },
     }
   );
@@ -473,6 +588,10 @@ describe(`parseCommandLineArguments`, () => {
       `3`,
       `--test-integer-b-long-name`,
       `18`,
+      `-test-enum-a-short-name`,
+      `test-option-a-a-long-name`,
+      `--test-enum-b-long-name`,
+      `test-option-b-c-short-name`,
     ],
     {
       strings: {
@@ -482,6 +601,10 @@ describe(`parseCommandLineArguments`, () => {
       integers: {
         testIntegerA: 3,
         testIntegerB: 18,
+      },
+      enums: {
+        testEnumA: `testOptionAA`,
+        testEnumB: `testOptionBC`,
       },
     }
   );
@@ -499,6 +622,10 @@ describe(`parseCommandLineArguments`, () => {
       `-1`,
       `--test-integer-b-long-name`,
       `12`,
+      `-test-enum-a-short-name`,
+      `test-option-a-a-long-name`,
+      `--test-enum-b-long-name`,
+      `test-option-b-c-short-name`,
     ],
     {
       strings: {
@@ -508,6 +635,10 @@ describe(`parseCommandLineArguments`, () => {
       integers: {
         testIntegerA: -1,
         testIntegerB: 12,
+      },
+      enums: {
+        testEnumA: `testOptionAA`,
+        testEnumB: `testOptionBC`,
       },
     }
   );
@@ -525,6 +656,10 @@ describe(`parseCommandLineArguments`, () => {
       `-1`,
       `--test-integer-b-long-name`,
       `24`,
+      `-test-enum-a-short-name`,
+      `test-option-a-a-long-name`,
+      `--test-enum-b-long-name`,
+      `test-option-b-c-short-name`,
     ],
     {
       strings: {
@@ -534,6 +669,10 @@ describe(`parseCommandLineArguments`, () => {
       integers: {
         testIntegerA: -1,
         testIntegerB: 24,
+      },
+      enums: {
+        testEnumA: `testOptionAA`,
+        testEnumB: `testOptionBC`,
       },
     }
   );
@@ -550,6 +689,10 @@ describe(`parseCommandLineArguments`, () => {
       `-test-integer-a-short-name`,
       `--test-integer-b-long-name`,
       `18`,
+      `-test-enum-a-short-name`,
+      `test-option-a-a-long-name`,
+      `--test-enum-b-long-name`,
+      `test-option-b-c-short-name`,
     ],
     `no argument given for command-line parameter "-test-integer-a-short-name"/"--test-integer-a-long-name".`
   );
@@ -566,6 +709,10 @@ describe(`parseCommandLineArguments`, () => {
       `--test-integer-b-long-name`,
       `-test-integer-a-short-name`,
       `-1`,
+      `-test-enum-a-short-name`,
+      `test-option-a-a-long-name`,
+      `--test-enum-b-long-name`,
+      `test-option-b-c-short-name`,
     ],
     `no argument given for command-line parameter "-test-integer-b-short-name"/"--test-integer-b-long-name".`
   );
@@ -581,6 +728,10 @@ describe(`parseCommandLineArguments`, () => {
       `tba`,
       `-test-integer-a-short-name`,
       `-1`,
+      `-test-enum-a-short-name`,
+      `test-option-a-a-long-name`,
+      `--test-enum-b-long-name`,
+      `test-option-b-c-short-name`,
       `-test-integer-b-short-name`,
     ],
     `no argument given for command-line parameter "-test-integer-b-short-name"/"--test-integer-b-long-name".`
@@ -597,6 +748,10 @@ describe(`parseCommandLineArguments`, () => {
       `tba`,
       `-test-integer-a-short-name`,
       `-1`,
+      `-test-enum-a-short-name`,
+      `test-option-a-a-long-name`,
+      `--test-enum-b-long-name`,
+      `test-option-b-c-short-name`,
       `--test-integer-b-long-name`,
     ],
     `no argument given for command-line parameter "-test-integer-b-short-name"/"--test-integer-b-long-name".`
@@ -615,6 +770,10 @@ describe(`parseCommandLineArguments`, () => {
       `-1.4`,
       `--test-integer-b-long-name`,
       `18`,
+      `-test-enum-a-short-name`,
+      `test-option-a-a-long-name`,
+      `--test-enum-b-long-name`,
+      `test-option-b-c-short-name`,
     ],
     `argument for command-line parameter "-test-integer-a-short-name"/"--test-integer-a-long-name" must be an integer.`
   );
@@ -632,6 +791,10 @@ describe(`parseCommandLineArguments`, () => {
       `-1`,
       `--test-integer-b-long-name`,
       `17.4`,
+      `-test-enum-a-short-name`,
+      `test-option-a-a-long-name`,
+      `--test-enum-b-long-name`,
+      `test-option-b-c-short-name`,
     ],
     `argument for command-line parameter "-test-integer-b-short-name"/"--test-integer-b-long-name" must be an integer.`
   );
@@ -649,6 +812,10 @@ describe(`parseCommandLineArguments`, () => {
       `-1E1`,
       `--test-integer-b-long-name`,
       `18`,
+      `-test-enum-a-short-name`,
+      `test-option-a-a-long-name`,
+      `--test-enum-b-long-name`,
+      `test-option-b-c-short-name`,
     ],
     `argument for command-line parameter "-test-integer-a-short-name"/"--test-integer-a-long-name" must be an integer.`
   );
@@ -666,6 +833,10 @@ describe(`parseCommandLineArguments`, () => {
       `-1`,
       `--test-integer-b-long-name`,
       `1E1`,
+      `-test-enum-a-short-name`,
+      `test-option-a-a-long-name`,
+      `--test-enum-b-long-name`,
+      `test-option-b-c-short-name`,
     ],
     `argument for command-line parameter "-test-integer-b-short-name"/"--test-integer-b-long-name" must be an integer.`
   );
@@ -683,6 +854,10 @@ describe(`parseCommandLineArguments`, () => {
       `-1$2`,
       `--test-integer-b-long-name`,
       `18`,
+      `-test-enum-a-short-name`,
+      `test-option-a-a-long-name`,
+      `--test-enum-b-long-name`,
+      `test-option-b-c-short-name`,
     ],
     `argument for command-line parameter "-test-integer-a-short-name"/"--test-integer-a-long-name" must be an integer.`
   );
@@ -700,6 +875,10 @@ describe(`parseCommandLineArguments`, () => {
       `-1`,
       `--test-integer-b-long-name`,
       `1$8`,
+      `-test-enum-a-short-name`,
+      `test-option-a-a-long-name`,
+      `--test-enum-b-long-name`,
+      `test-option-b-c-short-name`,
     ],
     `argument for command-line parameter "-test-integer-b-short-name"/"--test-integer-b-long-name" must be an integer.`
   );
@@ -717,6 +896,10 @@ describe(`parseCommandLineArguments`, () => {
       `-5`,
       `--test-integer-b-long-name`,
       `18`,
+      `-test-enum-a-short-name`,
+      `test-option-a-a-long-name`,
+      `--test-enum-b-long-name`,
+      `test-option-b-c-short-name`,
     ],
     `argument for command-line parameter "-test-integer-a-short-name"/"--test-integer-a-long-name" must be at least -4.`
   );
@@ -734,6 +917,10 @@ describe(`parseCommandLineArguments`, () => {
       `4`,
       `--test-integer-b-long-name`,
       `18`,
+      `-test-enum-a-short-name`,
+      `test-option-a-a-long-name`,
+      `--test-enum-b-long-name`,
+      `test-option-b-c-short-name`,
     ],
     `argument for command-line parameter "-test-integer-a-short-name"/"--test-integer-a-long-name" cannot be greater than 3.`
   );
@@ -751,6 +938,10 @@ describe(`parseCommandLineArguments`, () => {
       `-1`,
       `--test-integer-b-long-name`,
       `11`,
+      `-test-enum-a-short-name`,
+      `test-option-a-a-long-name`,
+      `--test-enum-b-long-name`,
+      `test-option-b-c-short-name`,
     ],
     `argument for command-line parameter "-test-integer-b-short-name"/"--test-integer-b-long-name" must be at least 12.`
   );
@@ -768,6 +959,10 @@ describe(`parseCommandLineArguments`, () => {
       `-1`,
       `--test-integer-b-long-name`,
       `25`,
+      `-test-enum-a-short-name`,
+      `test-option-a-a-long-name`,
+      `--test-enum-b-long-name`,
+      `test-option-b-c-short-name`,
     ],
     `argument for command-line parameter "-test-integer-b-short-name"/"--test-integer-b-long-name" cannot be greater than 24.`
   );
@@ -787,6 +982,10 @@ describe(`parseCommandLineArguments`, () => {
       `-1`,
       `--test-integer-b-long-name`,
       `18`,
+      `-test-enum-a-short-name`,
+      `test-option-a-a-long-name`,
+      `--test-enum-b-long-name`,
+      `test-option-b-c-short-name`,
     ],
     `command-line argument "-test-integer-a-short-name"/"--test-integer-a-long-name" given multiple times.`
   );
@@ -806,6 +1005,10 @@ describe(`parseCommandLineArguments`, () => {
       `-1`,
       `--test-integer-b-long-name`,
       `18`,
+      `-test-enum-a-short-name`,
+      `test-option-a-a-long-name`,
+      `--test-enum-b-long-name`,
+      `test-option-b-c-short-name`,
     ],
     `command-line argument "-test-integer-b-short-name"/"--test-integer-b-long-name" given multiple times.`
   );
@@ -825,6 +1028,10 @@ describe(`parseCommandLineArguments`, () => {
       `-1`,
       `--test-integer-b-long-name`,
       `18`,
+      `-test-enum-a-short-name`,
+      `test-option-a-a-long-name`,
+      `--test-enum-b-long-name`,
+      `test-option-b-c-short-name`,
     ],
     `command-line argument "-test-integer-b-short-name"/"--test-integer-b-long-name" given multiple times.`
   );
@@ -844,6 +1051,10 @@ describe(`parseCommandLineArguments`, () => {
       `-1`,
       `--test-integer-b-long-name`,
       `18`,
+      `-test-enum-a-short-name`,
+      `test-option-a-a-long-name`,
+      `--test-enum-b-long-name`,
+      `test-option-b-c-short-name`,
     ],
     `command-line argument "-test-integer-a-short-name"/"--test-integer-a-long-name" given multiple times.`
   );
@@ -862,6 +1073,10 @@ describe(`parseCommandLineArguments`, () => {
       `2`,
       `--test-integer-b-long-name`,
       `18`,
+      `-test-enum-a-short-name`,
+      `test-option-a-a-long-name`,
+      `--test-enum-b-long-name`,
+      `test-option-b-c-short-name`,
     ],
     `unexpected command-line argument "2".`
   );
@@ -880,6 +1095,10 @@ describe(`parseCommandLineArguments`, () => {
       `--test-integer-b-long-name`,
       `18`,
       `15`,
+      `-test-enum-a-short-name`,
+      `test-option-a-a-long-name`,
+      `--test-enum-b-long-name`,
+      `test-option-b-c-short-name`,
     ],
     `unexpected command-line argument "15".`
   );
@@ -897,6 +1116,10 @@ describe(`parseCommandLineArguments`, () => {
       `-1`,
       `--test-integer-b-long-name`,
       `18`,
+      `-test-enum-a-short-name`,
+      `test-option-a-a-long-name`,
+      `--test-enum-b-long-name`,
+      `test-option-b-c-short-name`,
     ],
     `command-line argument "-test-string-a-short-name"/"--test-string-a-long-name" not given.`
   );
@@ -914,6 +1137,10 @@ describe(`parseCommandLineArguments`, () => {
       `-1`,
       `--test-integer-b-long-name`,
       `18`,
+      `-test-enum-a-short-name`,
+      `test-option-a-a-long-name`,
+      `--test-enum-b-long-name`,
+      `test-option-b-c-short-name`,
     ],
     `command-line argument "-test-string-b-short-name"/"--test-string-b-long-name" not given.`
   );
@@ -929,6 +1156,10 @@ describe(`parseCommandLineArguments`, () => {
       `-1`,
       `--test-integer-b-long-name`,
       `18`,
+      `-test-enum-a-short-name`,
+      `test-option-a-a-long-name`,
+      `--test-enum-b-long-name`,
+      `test-option-b-c-short-name`,
     ],
     `command-line argument "-test-string-a-short-name"/"--test-string-a-long-name" not given.`
   );
@@ -946,6 +1177,10 @@ describe(`parseCommandLineArguments`, () => {
       `-4`,
       `--test-integer-b-long-name`,
       `18`,
+      `-test-enum-a-short-name`,
+      `test-option-a-a-long-name`,
+      `--test-enum-b-long-name`,
+      `test-option-b-c-short-name`,
     ],
     {
       strings: {
@@ -955,6 +1190,10 @@ describe(`parseCommandLineArguments`, () => {
       integers: {
         testIntegerA: -4,
         testIntegerB: 18,
+      },
+      enums: {
+        testEnumA: `testOptionAA`,
+        testEnumB: `testOptionBC`,
       },
     }
   );
@@ -972,6 +1211,10 @@ describe(`parseCommandLineArguments`, () => {
       `3`,
       `--test-integer-b-long-name`,
       `18`,
+      `-test-enum-a-short-name`,
+      `test-option-a-a-long-name`,
+      `--test-enum-b-long-name`,
+      `test-option-b-c-short-name`,
     ],
     {
       strings: {
@@ -981,6 +1224,10 @@ describe(`parseCommandLineArguments`, () => {
       integers: {
         testIntegerA: 3,
         testIntegerB: 18,
+      },
+      enums: {
+        testEnumA: `testOptionAA`,
+        testEnumB: `testOptionBC`,
       },
     }
   );
@@ -998,6 +1245,10 @@ describe(`parseCommandLineArguments`, () => {
       `-1`,
       `--test-integer-b-long-name`,
       `12`,
+      `-test-enum-a-short-name`,
+      `test-option-a-a-long-name`,
+      `--test-enum-b-long-name`,
+      `test-option-b-c-short-name`,
     ],
     {
       strings: {
@@ -1007,6 +1258,10 @@ describe(`parseCommandLineArguments`, () => {
       integers: {
         testIntegerA: -1,
         testIntegerB: 12,
+      },
+      enums: {
+        testEnumA: `testOptionAA`,
+        testEnumB: `testOptionBC`,
       },
     }
   );
@@ -1024,6 +1279,10 @@ describe(`parseCommandLineArguments`, () => {
       `-1`,
       `--test-integer-b-long-name`,
       `24`,
+      `-test-enum-a-short-name`,
+      `test-option-a-a-long-name`,
+      `--test-enum-b-long-name`,
+      `test-option-b-c-short-name`,
     ],
     {
       strings: {
@@ -1033,6 +1292,10 @@ describe(`parseCommandLineArguments`, () => {
       integers: {
         testIntegerA: -1,
         testIntegerB: 24,
+      },
+      enums: {
+        testEnumA: `testOptionAA`,
+        testEnumB: `testOptionBC`,
       },
     }
   );
@@ -1049,6 +1312,10 @@ describe(`parseCommandLineArguments`, () => {
       `-1`,
       `--test-integer-b-long-name`,
       `18`,
+      `-test-enum-a-short-name`,
+      `test-option-a-a-long-name`,
+      `--test-enum-b-long-name`,
+      `test-option-b-c-short-name`,
     ],
     `no argument given for command-line parameter "-test-string-a-short-name"/"--test-string-a-long-name".`
   );
@@ -1065,6 +1332,10 @@ describe(`parseCommandLineArguments`, () => {
       `-1`,
       `--test-integer-b-long-name`,
       `18`,
+      `-test-enum-a-short-name`,
+      `test-option-a-a-long-name`,
+      `--test-enum-b-long-name`,
+      `test-option-b-c-short-name`,
     ],
     `no argument given for command-line parameter "-test-string-b-short-name"/"--test-string-b-long-name".`
   );
@@ -1080,6 +1351,10 @@ describe(`parseCommandLineArguments`, () => {
       `-1`,
       `-test-integer-b-short-name`,
       `18`,
+      `-test-enum-a-short-name`,
+      `test-option-a-a-long-name`,
+      `--test-enum-b-long-name`,
+      `test-option-b-c-short-name`,
       `-test-string-a-short-name`,
     ],
     `no argument given for command-line parameter "-test-string-a-short-name"/"--test-string-a-long-name".`
@@ -1096,6 +1371,10 @@ describe(`parseCommandLineArguments`, () => {
       `-1`,
       `--test-integer-b-long-name`,
       `18`,
+      `-test-enum-a-short-name`,
+      `test-option-a-a-long-name`,
+      `--test-enum-b-long-name`,
+      `test-option-b-c-short-name`,
       `--test-string-b-long-name`,
     ],
     `no argument given for command-line parameter "-test-string-b-short-name"/"--test-string-b-long-name".`
@@ -1114,6 +1393,10 @@ describe(`parseCommandLineArguments`, () => {
       `-1`,
       `--test-integer-b-long-name`,
       `18`,
+      `-test-enum-a-short-name`,
+      `test-option-a-a-long-name`,
+      `--test-enum-b-long-name`,
+      `test-option-b-c-short-name`,
     ],
     `argument for command-line parameter "-test-string-a-short-name"/"--test-string-a-long-name" must contain at least 5 character(s).`
   );
@@ -1131,6 +1414,10 @@ describe(`parseCommandLineArguments`, () => {
       `-1`,
       `--test-integer-b-long-name`,
       `18`,
+      `-test-enum-a-short-name`,
+      `test-option-a-a-long-name`,
+      `--test-enum-b-long-name`,
+      `test-option-b-c-short-name`,
     ],
     `argument for command-line parameter "-test-string-a-short-name"/"--test-string-a-long-name" cannot contain more than 10 character(s).`
   );
@@ -1148,6 +1435,10 @@ describe(`parseCommandLineArguments`, () => {
       `-1`,
       `--test-integer-b-long-name`,
       `11`,
+      `-test-enum-a-short-name`,
+      `test-option-a-a-long-name`,
+      `--test-enum-b-long-name`,
+      `test-option-b-c-short-name`,
     ],
     `argument for command-line parameter "-test-string-b-short-name"/"--test-string-b-long-name" must contain at least 2 character(s).`
   );
@@ -1165,6 +1456,10 @@ describe(`parseCommandLineArguments`, () => {
       `-1`,
       `--test-integer-b-long-name`,
       `25`,
+      `-test-enum-a-short-name`,
+      `test-option-a-a-long-name`,
+      `--test-enum-b-long-name`,
+      `test-option-b-c-short-name`,
     ],
     `argument for command-line parameter "-test-string-b-short-name"/"--test-string-b-long-name" cannot contain more than 4 character(s).`
   );
@@ -1184,6 +1479,10 @@ describe(`parseCommandLineArguments`, () => {
       `test arg a`,
       `--test-integer-b-long-name`,
       `18`,
+      `-test-enum-a-short-name`,
+      `test-option-a-a-long-name`,
+      `--test-enum-b-long-name`,
+      `test-option-b-c-short-name`,
     ],
     `command-line argument "-test-string-a-short-name"/"--test-string-a-long-name" given multiple times.`
   );
@@ -1203,6 +1502,10 @@ describe(`parseCommandLineArguments`, () => {
       `tqq`,
       `--test-integer-b-long-name`,
       `18`,
+      `-test-enum-a-short-name`,
+      `test-option-a-a-long-name`,
+      `--test-enum-b-long-name`,
+      `test-option-b-c-short-name`,
     ],
     `command-line argument "-test-string-b-short-name"/"--test-string-b-long-name" given multiple times.`
   );
@@ -1222,6 +1525,10 @@ describe(`parseCommandLineArguments`, () => {
       `-1`,
       `--test-integer-b-long-name`,
       `18`,
+      `-test-enum-a-short-name`,
+      `test-option-a-a-long-name`,
+      `--test-enum-b-long-name`,
+      `test-option-b-c-short-name`,
     ],
     `command-line argument "-test-string-a-short-name"/"--test-string-a-long-name" given multiple times.`
   );
@@ -1241,6 +1548,10 @@ describe(`parseCommandLineArguments`, () => {
       `tqq`,
       `--test-integer-b-long-name`,
       `18`,
+      `-test-enum-a-short-name`,
+      `test-option-a-a-long-name`,
+      `--test-enum-b-long-name`,
+      `test-option-b-c-short-name`,
     ],
     `command-line argument "-test-string-b-short-name"/"--test-string-b-long-name" given multiple times.`
   );
@@ -1259,6 +1570,10 @@ describe(`parseCommandLineArguments`, () => {
       `-1`,
       `--test-integer-b-long-name`,
       `18`,
+      `-test-enum-a-short-name`,
+      `test-option-a-a-long-name`,
+      `--test-enum-b-long-name`,
+      `test-option-b-c-short-name`,
     ],
     `unexpected command-line argument "q e iiioo".`
   );
@@ -1277,7 +1592,331 @@ describe(`parseCommandLineArguments`, () => {
       `-1`,
       `--test-integer-b-long-name`,
       `18`,
+      `-test-enum-a-short-name`,
+      `test-option-a-a-long-name`,
+      `--test-enum-b-long-name`,
+      `test-option-b-c-short-name`,
     ],
     `unexpected command-line argument "tqq".`
+  );
+
+  rejects(
+    `when an enum is missing`,
+    [
+      `ignored node process`,
+      `ignored javascript file`,
+      `-test-string-a-short-name`,
+      `t s a arg`,
+      `--test-string-b-long-name`,
+      `tba`,
+      `tqq`,
+      `-test-integer-a-short-name`,
+      `-1`,
+      `--test-integer-b-long-name`,
+      `18`,
+      `--test-enum-b-long-name`,
+      `test-option-b-c-short-name`,
+    ],
+    `command-line argument "-test-enum-a-short-name"/"--test-enum-a-long-name" not given.`
+  );
+
+  rejects(
+    `when an enum with a short name is given two arguments`,
+    [
+      `ignored node process`,
+      `ignored javascript file`,
+      `-test-string-a-short-name`,
+      `t s a arg`,
+      `--test-string-b-long-name`,
+      `tba`,
+      `-test-integer-a-short-name`,
+      `-1`,
+      `--test-integer-b-long-name`,
+      `18`,
+      `-test-enum-a-short-name`,
+      `test-option-a-a-long-name`,
+      `test-option-a-c-long-name`,
+      `--test-enum-b-long-name`,
+      `test-option-b-c-short-name`,
+    ],
+    `unexpected command-line argument "test-option-a-c-long-name".`
+  );
+
+  rejects(
+    `when an enum with a long name is given two arguments`,
+    [
+      `ignored node process`,
+      `ignored javascript file`,
+      `-test-string-a-short-name`,
+      `t s a arg`,
+      `--test-string-b-long-name`,
+      `tba`,
+      `-test-integer-a-short-name`,
+      `-1`,
+      `--test-integer-b-long-name`,
+      `18`,
+      `-test-enum-a-short-name`,
+      `test-option-a-a-long-name`,
+      `--test-enum-b-long-name`,
+      `test-option-b-c-short-name`,
+      `test-option-b-a-short-name`,
+    ],
+    `unexpected command-line argument "test-option-b-a-short-name".`
+  );
+
+  rejects(
+    `when an enum with a short name has no argument`,
+    [
+      `ignored node process`,
+      `ignored javascript file`,
+      `-test-string-a-short-name`,
+      `t s a arg`,
+      `--test-string-b-long-name`,
+      `tba`,
+      `-test-integer-a-short-name`,
+      `-1`,
+      `--test-integer-b-long-name`,
+      `18`,
+      `-test-enum-a-short-name`,
+      `--test-enum-b-long-name`,
+      `test-option-b-c-short-name`,
+    ],
+    `no argument given for command-line parameter "-test-enum-a-short-name"/"--test-enum-a-long-name".`
+  );
+
+  rejects(
+    `when an enum with a long name has no argument`,
+    [
+      `ignored node process`,
+      `ignored javascript file`,
+      `-test-string-a-short-name`,
+      `t s a arg`,
+      `--test-string-b-long-name`,
+      `tba`,
+      `-test-integer-a-short-name`,
+      `-1`,
+      `--test-integer-b-long-name`,
+      `18`,
+      `--test-enum-a-long-name`,
+      `-test-enum-b-short-name`,
+      `test-option-a-c-short-name`,
+    ],
+    `no argument given for command-line parameter "-test-enum-a-short-name"/"--test-enum-a-long-name".`
+  );
+
+  rejects(
+    `when an enum with a short name has no argument at the end of the argument list`,
+    [
+      `ignored node process`,
+      `ignored javascript file`,
+      `-test-string-a-short-name`,
+      `t s a arg`,
+      `--test-string-b-long-name`,
+      `tba`,
+      `-test-integer-a-short-name`,
+      `-1`,
+      `--test-integer-b-long-name`,
+      `18`,
+      `--test-enum-a-long-name`,
+      `test-option-a-a-short-name`,
+      `-test-enum-b-short-name`,
+    ],
+    `no argument given for command-line parameter "-test-enum-b-short-name"/"--test-enum-b-long-name".`
+  );
+
+  rejects(
+    `when an enum with a long name has no argument at the end of the argument list`,
+    [
+      `ignored node process`,
+      `ignored javascript file`,
+      `-test-string-a-short-name`,
+      `t s a arg`,
+      `--test-string-b-long-name`,
+      `tba`,
+      `-test-integer-a-short-name`,
+      `-1`,
+      `--test-integer-b-long-name`,
+      `18`,
+      `-test-enum-a-short-name`,
+      `test-option-a-a-long-name`,
+      `--test-enum-b-long-name`,
+    ],
+    `no argument given for command-line parameter "-test-enum-b-short-name"/"--test-enum-b-long-name".`
+  );
+
+  rejects(
+    `when an enum is given twice by short name`,
+    [
+      `ignored node process`,
+      `ignored javascript file`,
+      `-test-string-a-short-name`,
+      `t s a arg`,
+      `-test-enum-a-short-name`,
+      `test-option-a-c-long-name`,
+      `--test-string-b-long-name`,
+      `tba`,
+      `-test-integer-a-short-name`,
+      `-1`,
+      `--test-integer-b-long-name`,
+      `18`,
+      `-test-enum-a-short-name`,
+      `test-option-a-a-long-name`,
+      `--test-enum-b-long-name`,
+      `test-option-b-c-short-name`,
+    ],
+    `command-line argument "-test-enum-a-short-name"/"--test-enum-a-long-name" given multiple times.`
+  );
+
+  rejects(
+    `when an enum is given twice by long name`,
+    [
+      `ignored node process`,
+      `ignored javascript file`,
+      `-test-string-a-short-name`,
+      `t s a arg`,
+      `--test-enum-b-long-name`,
+      `test-option-b-b-long-name`,
+      `--test-string-b-long-name`,
+      `tba`,
+      `-test-integer-a-short-name`,
+      `-1`,
+      `--test-integer-b-long-name`,
+      `18`,
+      `-test-enum-a-short-name`,
+      `test-option-a-a-long-name`,
+      `--test-enum-b-long-name`,
+      `test-option-b-c-short-name`,
+    ],
+    `command-line argument "-test-enum-b-short-name"/"--test-enum-b-long-name" given multiple times.`
+  );
+
+  rejects(
+    `when an enum is given twice by short then long name`,
+    [
+      `ignored node process`,
+      `ignored javascript file`,
+      `-test-string-a-short-name`,
+      `t s a arg`,
+      `-test-enum-b-short-name`,
+      `test-option-b-a-short-name`,
+      `--test-string-b-long-name`,
+      `tba`,
+      `-test-integer-a-short-name`,
+      `-1`,
+      `--test-integer-b-long-name`,
+      `18`,
+      `-test-enum-a-short-name`,
+      `test-option-a-a-long-name`,
+      `--test-enum-b-long-name`,
+      `test-option-b-c-short-name`,
+    ],
+    `command-line argument "-test-enum-b-short-name"/"--test-enum-b-long-name" given multiple times.`
+  );
+
+  rejects(
+    `when an enum is given twice by long then short name`,
+    [
+      `ignored node process`,
+      `ignored javascript file`,
+      `-test-string-a-short-name`,
+      `t s a arg`,
+      `--test-enum-a-long-name`,
+      `test-option-a-c-long-name`,
+      `--test-string-b-long-name`,
+      `tba`,
+      `-test-integer-a-short-name`,
+      `-1`,
+      `--test-integer-b-long-name`,
+      `18`,
+      `-test-enum-a-short-name`,
+      `test-option-a-a-long-name`,
+      `--test-enum-b-long-name`,
+      `test-option-b-c-short-name`,
+    ],
+    `command-line argument "-test-enum-a-short-name"/"--test-enum-a-long-name" given multiple times.`
+  );
+
+  rejects(
+    `when an enum is given by short name with an invalid value`,
+    [
+      `ignored node process`,
+      `ignored javascript file`,
+      `-test-string-a-short-name`,
+      `t s a arg`,
+      `--test-string-b-long-name`,
+      `tba`,
+      `-test-integer-a-short-name`,
+      `-1`,
+      `--test-integer-b-long-name`,
+      `18`,
+      `-test-enum-a-short-name`,
+      `test-invalid-value`,
+      `--test-enum-b-long-name`,
+      `test-option-b-c-short-name`,
+    ],
+    `argument for command-line parameter "-test-enum-a-short-name"/"--test-enum-a-long-name" must be one of test-option-a-a-short-name, test-option-a-a-long-name, test-option-a-b-short-name, test-option-a-b-long-name, test-option-a-c-short-name, test-option-a-c-long-name.`
+  );
+
+  rejects(
+    `when an enum is given by long name with an invalid value`,
+    [
+      `ignored node process`,
+      `ignored javascript file`,
+      `-test-string-a-short-name`,
+      `t s a arg`,
+      `--test-string-b-long-name`,
+      `tba`,
+      `-test-integer-a-short-name`,
+      `-1`,
+      `--test-integer-b-long-name`,
+      `18`,
+      `-test-enum-a-short-name`,
+      `test-option-a-a-long-name`,
+      `--test-enum-b-long-name`,
+      `test-invalid-value`,
+    ],
+    `argument for command-line parameter "-test-enum-b-short-name"/"--test-enum-b-long-name" must be one of test-option-b-a-short-name, test-option-b-a-long-name, test-option-b-b-short-name, test-option-b-b-long-name, test-option-b-c-short-name, test-option-b-c-long-name.`
+  );
+
+  rejects(
+    `when an enum is given by short name with another enum's value`,
+    [
+      `ignored node process`,
+      `ignored javascript file`,
+      `-test-string-a-short-name`,
+      `t s a arg`,
+      `--test-string-b-long-name`,
+      `tba`,
+      `-test-integer-a-short-name`,
+      `-1`,
+      `--test-integer-b-long-name`,
+      `18`,
+      `-test-enum-a-short-name`,
+      `test-option-b-a-long-name`,
+      `--test-enum-b-long-name`,
+      `test-option-b-c-short-name`,
+    ],
+    `argument for command-line parameter "-test-enum-a-short-name"/"--test-enum-a-long-name" must be one of test-option-a-a-short-name, test-option-a-a-long-name, test-option-a-b-short-name, test-option-a-b-long-name, test-option-a-c-short-name, test-option-a-c-long-name.`
+  );
+
+  rejects(
+    `when an enum is given by long name with another enum's value`,
+    [
+      `ignored node process`,
+      `ignored javascript file`,
+      `-test-string-a-short-name`,
+      `t s a arg`,
+      `--test-string-b-long-name`,
+      `tba`,
+      `-test-integer-a-short-name`,
+      `-1`,
+      `--test-integer-b-long-name`,
+      `18`,
+      `-test-enum-a-short-name`,
+      `test-option-a-a-long-name`,
+      `--test-enum-b-long-name`,
+      `test-option-a-c-short-name`,
+    ],
+    `argument for command-line parameter "-test-enum-b-short-name"/"--test-enum-b-long-name" must be one of test-option-b-a-short-name, test-option-b-a-long-name, test-option-b-b-short-name, test-option-b-b-long-name, test-option-b-c-short-name, test-option-b-c-long-name.`
   );
 });

@@ -14,12 +14,17 @@ function fail(message: string): void {
 
 export function parseCommandLineArguments<
   TStringKey extends string,
-  TIntegerKey extends string
+  TIntegerKey extends string,
+  TEnums extends { readonly [key: string]: string }
 >(
   name: string,
   helpText: string,
-  commandLineParameterSet: CommandLineParameterSet<TStringKey, TIntegerKey>
-): CommandLineArgumentSet<TStringKey, TIntegerKey> {
+  commandLineParameterSet: CommandLineParameterSet<
+    TStringKey,
+    TIntegerKey,
+    TEnums
+  >
+): CommandLineArgumentSet<TStringKey, TIntegerKey, TEnums> {
   if (
     [`-h`, `--help`, `/?`].some((keyword) => process.argv.includes(keyword))
   ) {
@@ -36,6 +41,34 @@ export function parseCommandLineArguments<
       const parameter = commandLineParameterSet.integers[key];
       options.push(
         `\n    -${parameter.name.short}, --${parameter.name.long} [${parameter.argumentHelpText}]: ${parameter.helpText}`
+      );
+    }
+
+    for (const parameterKey in commandLineParameterSet.enums) {
+      const parameter = commandLineParameterSet.enums[parameterKey];
+
+      const names: string[] = [];
+      const postOptions: string[] = [];
+
+      for (const option of Object.values(parameter.options) as ReadonlyArray<{
+        readonly name: {
+          readonly short: string;
+          readonly long: string;
+        };
+        readonly helpText: string;
+      }>) {
+        names.push(option.name.short);
+        names.push(option.name.long);
+
+        postOptions.push(
+          `\n      ${option.name.short}, ${option.name.long}: ${option.helpText}`
+        );
+      }
+
+      options.push(
+        `\n    -${parameter.name.short}, --${parameter.name.long} [${names.join(
+          `|`
+        )}]: ${parameter.helpText}${postOptions.join(``)}`
       );
     }
 
@@ -193,6 +226,59 @@ export function parseCommandLineArguments<
     argumentUsed[indexOfArgument] = true;
   }
 
+  const enumValues: { [TKey in keyof TEnums]?: string } = {};
+
+  for (const key in commandLineParameterSet.enums) {
+    const parameter = commandLineParameterSet.enums[key];
+
+    const indexOfArgument = commandLineParameterIndices[key] + 1;
+    if (
+      indexOfArgument === process.argv.length ||
+      argumentUsed[indexOfArgument]
+    ) {
+      fail(
+        `no argument given for command-line parameter "-${parameter.name.short}"/"--${parameter.name.long}".`
+      );
+    }
+
+    const argumentText = process.argv[indexOfArgument];
+
+    const match = (Object.entries(parameter.options) as ReadonlyArray<
+      readonly [
+        string,
+        { readonly name: { readonly short: string; readonly long: string } }
+      ]
+    >).find(
+      (keyValue) =>
+        keyValue[1].name.short === argumentText ||
+        keyValue[1].name.long === argumentText
+    );
+
+    if (match === undefined) {
+      const names: string[] = [];
+
+      for (const option of Object.values(parameter.options) as ReadonlyArray<{
+        readonly name: {
+          readonly short: string;
+          readonly long: string;
+        };
+        readonly helpText: string;
+      }>) {
+        names.push(option.name.short);
+        names.push(option.name.long);
+      }
+
+      fail(
+        `argument for command-line parameter "-${parameter.name.short}"/"--${
+          parameter.name.long
+        }" must be one of ${names.join(`, `)}.`
+      );
+    } else {
+      enumValues[key] = match[0];
+      argumentUsed[indexOfArgument] = true;
+    }
+  }
+
   const indexOfFirstUnusedArgument = argumentUsed.indexOf(false);
   if (indexOfFirstUnusedArgument !== -1) {
     fail(
@@ -202,9 +288,11 @@ export function parseCommandLineArguments<
 
   const strings = stringValues as { readonly [TKey in TStringKey]: string };
   const integers = integerValues as { readonly [TKey in TIntegerKey]: number };
+  const enums = enumValues as TEnums;
 
   return {
     strings,
     integers,
+    enums,
   };
 }

@@ -43,6 +43,31 @@ const parsed = parseCommandLineArguments(
         maximum: 20,
       },
     },
+    enums: {
+      exampleEnumName: {
+        name: {
+          short: "een",
+          long: "example-enum-name",
+        },
+        helpText: "example enum name's example help text",
+        options: {
+          exampleOptionA: {
+            name: {
+              short: "eoa",
+              long: "example-option-a"
+            },
+            helpText: "example option a's example help text",
+          },
+          exampleOptionB: {
+            name: {
+              short: "eob",
+              long: "example-option-b"
+            },
+            helpText: "example option b's example help text",
+          },
+        },
+      },
+    },
   }
 )
 
@@ -62,6 +87,9 @@ example name - example help text
     -h, --help, /?: display this message
     -ein, --example-integer-name [example integer name's example argument help text]: example integer name's example help text
     -esn, --example-string-name [example string name's example argument help text]: example string name's example help text
+    -een, --example-enum-name [eoa|example-option-a|eob|example-option-b]: example enum name's example help text
+      eoa, example-option-a: example option a's example help text
+      eob, example-option-b: example option b's example help text
 ```
 
 #### Invalid
@@ -83,6 +111,9 @@ If the command line arguments are valid, the arguments will be returned in an ob
   },
   "integers": {
     "exampleIntegerName": 7
+  },
+  "enums": {
+    "exampleEnumName": "exampleOptionA"
   }
 }
 ```
