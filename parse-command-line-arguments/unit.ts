@@ -211,7 +211,12 @@ describe(`parseCommandLineArguments`, () => {
       () => {
         beforeAll(() => {
           try {
-            parseCommandLineArguments(name, helpText, commandLineParameterSet);
+            parseCommandLineArguments(
+              name,
+              `Test Version`,
+              helpText,
+              commandLineParameterSet
+            );
           } catch {}
         });
       },
@@ -225,7 +230,8 @@ describe(`parseCommandLineArguments`, () => {
         });
 
         it(`logs the expected message`, () => {
-          expect(consoleLog).toHaveBeenCalledWith(`test name - test help text
+          expect(consoleLog)
+            .toHaveBeenCalledWith(`test name (Test Version) - test help text
   usage: test name [options]
   options:
     -h, --help, /?: display this message
@@ -293,6 +299,7 @@ describe(`parseCommandLineArguments`, () => {
         beforeAll(() => {
           actualArguments = parseCommandLineArguments(
             name,
+            `Test Version`,
             helpText,
             commandLineParameterSet
           );
@@ -332,7 +339,12 @@ describe(`parseCommandLineArguments`, () => {
       () => {
         beforeAll(() => {
           try {
-            parseCommandLineArguments(name, helpText, commandLineParameterSet);
+            parseCommandLineArguments(
+              name,
+              `Test Version`,
+              helpText,
+              commandLineParameterSet
+            );
           } catch {}
         });
       },

@@ -19,6 +19,7 @@ export function parseCommandLineArguments<
   TBooleanKey extends string
 >(
   name: string,
+  version: string,
   helpText: string,
   commandLineParameterSet: CommandLineParameterSet<
     TStringKey,
@@ -81,7 +82,7 @@ export function parseCommandLineArguments<
       );
     }
 
-    console.log(`${name} - ${helpText}
+    console.log(`${name} (${version}) - ${helpText}
   usage: ${name} [options]
   options:
     -h, --help, /?: display this message${options.sort().join(``)}`);
