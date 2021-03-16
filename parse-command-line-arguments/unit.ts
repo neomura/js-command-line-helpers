@@ -53,13 +53,13 @@ describe(`parseCommandLineArguments`, () => {
     });
   }
 
-  type StringKey = "testStringA" | "testStringB";
-  type IntegerKey = "testIntegerA" | "testIntegerB";
+  type StringKey = `testStringA` | `testStringB`;
+  type IntegerKey = `testIntegerA` | `testIntegerB`;
   type Enum = {
-    testEnumA: "testOptionAA" | "testOptionAB" | "testOptionAC";
-    testEnumB: "testOptionBA" | "testOptionBB" | "testOptionBC";
+    testEnumA: `testOptionAA` | `testOptionAB` | `testOptionAC`;
+    testEnumB: `testOptionBA` | `testOptionBB` | `testOptionBC`;
   };
-  type BooleanKey = "testBooleanA" | "testBooleanB" | "testBooleanC";
+  type BooleanKey = `testBooleanA` | `testBooleanB` | `testBooleanC`;
 
   const name = `test name`;
   const helpText = `test help text`;
