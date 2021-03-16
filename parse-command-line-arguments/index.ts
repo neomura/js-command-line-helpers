@@ -15,16 +15,18 @@ function fail(message: string): void {
 export function parseCommandLineArguments<
   TStringKey extends string,
   TIntegerKey extends string,
-  TEnums extends { readonly [key: string]: string }
+  TEnums extends { readonly [key: string]: string },
+  TBooleanKey extends string
 >(
   name: string,
   helpText: string,
   commandLineParameterSet: CommandLineParameterSet<
     TStringKey,
     TIntegerKey,
-    TEnums
+    TEnums,
+    TBooleanKey
   >
-): CommandLineArgumentSet<TStringKey, TIntegerKey, TEnums> {
+): CommandLineArgumentSet<TStringKey, TIntegerKey, TEnums, TBooleanKey> {
   if (
     [`-h`, `--help`, `/?`].some((keyword) => process.argv.includes(keyword))
   ) {
@@ -41,6 +43,13 @@ export function parseCommandLineArguments<
       const parameter = commandLineParameterSet.integers[key];
       options.push(
         `\n    -${parameter.name.short}, --${parameter.name.long} [${parameter.argumentHelpText}]: ${parameter.helpText}`
+      );
+    }
+
+    for (const key in commandLineParameterSet.booleans) {
+      const parameter = commandLineParameterSet.booleans[key];
+      options.push(
+        `\n    -${parameter.name.short}, --${parameter.name.long}: ${parameter.helpText}`
       );
     }
 
@@ -139,17 +148,29 @@ export function parseCommandLineArguments<
   for (const type in namedParameters) {
     const ofType = namedParameters[type];
 
-    for (const key in ofType) {
-      const parameter = ofType[key];
+    if (type !== `booleans`) {
+      for (const key in ofType) {
+        const parameter = ofType[key];
 
-      if (
-        !Object.prototype.hasOwnProperty.call(commandLineParameterIndices, key)
-      ) {
-        fail(
-          `command-line argument "-${parameter.name.short}"/"--${parameter.name.long}" not given.`
-        );
+        if (
+          !Object.prototype.hasOwnProperty.call(
+            commandLineParameterIndices,
+            key
+          )
+        ) {
+          fail(
+            `command-line argument "-${parameter.name.short}"/"--${parameter.name.long}" not given.`
+          );
+        }
       }
     }
+  }
+
+  const booleanValues: { [key: string]: boolean } = {};
+
+  for (const key in commandLineParameterSet.booleans) {
+    const indexOfArgument = commandLineParameterIndices[key];
+    booleanValues[key] = indexOfArgument > 1;
   }
 
   const stringValues: { [key: string]: string } = {};
@@ -289,10 +310,12 @@ export function parseCommandLineArguments<
   const strings = stringValues as { readonly [TKey in TStringKey]: string };
   const integers = integerValues as { readonly [TKey in TIntegerKey]: number };
   const enums = enumValues as TEnums;
+  const booleans = booleanValues as { readonly [TKey in TBooleanKey]: boolean };
 
   return {
     strings,
     integers,
     enums,
+    booleans,
   };
 }

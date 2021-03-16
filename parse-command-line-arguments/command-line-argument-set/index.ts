@@ -1,7 +1,8 @@
 export type CommandLineArgumentSet<
   TStringKey extends string,
   TIntegerKey extends string,
-  TEnums extends { readonly [key: string]: string }
+  TEnums extends { readonly [key: string]: string },
+  TBooleanKey extends string
 > = {
   readonly strings: {
     readonly [TKey in TStringKey]: string;
@@ -11,5 +12,8 @@ export type CommandLineArgumentSet<
   };
   readonly enums: {
     readonly [TKey in keyof TEnums]: TEnums[TKey];
+  };
+  readonly booleans: {
+    readonly [TKey in TBooleanKey]: boolean;
   };
 };

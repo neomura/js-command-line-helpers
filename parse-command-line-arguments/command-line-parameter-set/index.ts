@@ -1,7 +1,8 @@
 export type CommandLineParameterSet<
   TStringKey extends string,
   TIntegerKey extends string,
-  TEnums extends { readonly [key: string]: string }
+  TEnums extends { readonly [key: string]: string },
+  TBooleanKey extends string
 > = {
   readonly strings: {
     readonly [TKey in TStringKey]: {
@@ -45,6 +46,15 @@ export type CommandLineParameterSet<
           readonly helpText: string;
         };
       };
+    };
+  };
+  readonly booleans: {
+    readonly [TKey in TBooleanKey]: {
+      readonly name: {
+        readonly short: string;
+        readonly long: string;
+      };
+      readonly helpText: string;
     };
   };
 };
