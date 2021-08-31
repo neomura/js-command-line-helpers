@@ -15,6 +15,7 @@ import { parseCommandLineArguments } from "@neomura/js-command-line-helpers";
 
 const parsed = parseCommandLineArguments(
   `example name`,
+  `example version`,
   `example help text`,
   {
     strings: {
@@ -68,7 +69,7 @@ const parsed = parseCommandLineArguments(
         },
       },
     },
-    integers: {
+    booleans: {
       exampleBooleanName: {
         name: {
           short: `ebn`,
