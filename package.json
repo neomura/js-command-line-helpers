@@ -21,7 +21,7 @@
   },
   "license": "MIT",
   "devDependencies": {
-    "@types/jasmine": "3.10.4",
+    "@types/jasmine": "4.0.0",
     "@typescript-eslint/eslint-plugin": "5.16.0",
     "@typescript-eslint/parser": "5.16.0",
     "del-cli": "3.0.1",
